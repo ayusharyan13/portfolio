@@ -102,7 +102,7 @@ router.get('/api/config', (request: Request, env: Env) => {
       provider: env.LLM_PROVIDER || 'openai',
       openaiModel: env.OPENAI_MODEL || 'gpt-4o-mini',
       geminiModel: env.GEMINI_MODEL || 'gemini-1.5-flash',
-      embeddingModel: env.EMBEDDING_MODEL || 'text-embedding-3-small',
+      embeddingModel: '@cf/baai/bge-small-en-v1.5 (Workers AI, free)',
       maxTokens: parseInt(env.MAX_TOKENS || '512'),
       temperature: parseFloat(env.TEMPERATURE || '0.7'),
     }),

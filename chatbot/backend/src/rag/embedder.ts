@@ -1,94 +1,58 @@
 /**
  * Embedding utilities for the RAG pipeline.
- * Generates embeddings using OpenAI's API and performs cosine similarity search.
+ * Generates embeddings using Cloudflare Workers AI (free, no API key needed).
+ * Uses @cf/baai/bge-small-en-v1.5 — small, fast, 384-dimensional embeddings.
  */
 
 import { Env } from '../config'
 
+/** Workers AI embedding model — free tier (10k Neurons/day), plenty for a portfolio site. */
+const EMBEDDING_MODEL = '@cf/baai/bge-small-en-v1.5'
+
 /**
  * Generate an embedding vector for a single text string.
- * Uses OpenAI's text-embedding-3-small model.
+ * Uses Cloudflare Workers AI — no API key required.
  */
 export async function embedText(
   text: string,
   env: Env
 ): Promise<number[]> {
-  const apiKey = env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error(
-      'OPENAI_API_KEY is required for embeddings. Set it via `npx wrangler secret put OPENAI_API_KEY`'
-    )
-  }
-
-  const model = env.EMBEDDING_MODEL || 'text-embedding-3-small'
-
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      input: text,
-      encoding_format: 'float',
-    }),
+  const result = await env.AI.run(EMBEDDING_MODEL, {
+    text: [text],
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`OpenAI Embedding API error (${response.status}): ${error}`)
+  if (!result.data || result.data.length === 0) {
+    throw new Error('Workers AI returned empty embedding data')
   }
 
-  const data = (await response.json()) as {
-    data: Array<{ embedding: number[] }>
-  }
-  return data.data[0].embedding
+  return result.data[0]
 }
 
 /**
  * Generate embeddings for multiple texts in batch.
- * More efficient than calling embedText multiple times.
+ * Uses Cloudflare Workers AI — no API key required.
  */
 export async function embedBatch(
   texts: string[],
   env: Env
 ): Promise<number[][]> {
-  const apiKey = env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is required for embeddings.')
-  }
-
-  const model = env.EMBEDDING_MODEL || 'text-embedding-3-small'
-
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      input: texts,
-      encoding_format: 'float',
-    }),
+  const result = await env.AI.run(EMBEDDING_MODEL, {
+    text: texts,
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`OpenAI Embedding API error (${response.status}): ${error}`)
+  if (!result.data || result.data.length !== texts.length) {
+    throw new Error(
+      `Workers AI returned ${result.data?.length ?? 0} embeddings for ${texts.length} texts`
+    )
   }
 
-  const data = (await response.json()) as {
-    data: Array<{ index: number; embedding: number[] }>
-  }
-  // Sort by index to maintain original order
-  return data.data.sort((a, b) => a.index - b.index).map((d) => d.embedding)
+  return result.data
 }
 
 /**
  * Compute cosine similarity between two vectors.
- * OpenAI embeddings are normalized to unit length, so this is just the dot product.
+ * bge-small-en-v1.5 embeddings are normalized to unit length,
+ * so cosine similarity is just the dot product.
  */
 export function cosineSimilarity(vecA: number[], vecB: number[]): number {
   if (vecA.length !== vecB.length) {

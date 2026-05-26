@@ -1,4 +1,15 @@
+/** Type for Cloudflare Workers AI binding */
+export interface AiBinding {
+  run: (model: string, inputs: Record<string, unknown>) => Promise<{
+    shape: number[]
+    data: number[][]
+  }>
+}
+
 export interface Env {
+  // Cloudflare Workers AI binding (used for embeddings — no API key needed)
+  AI: AiBinding
+
   // LLM Provider selection
   LLM_PROVIDER: 'openai' | 'gemini' | 'groq' | 'custom'
 
@@ -18,9 +29,6 @@ export interface Env {
   CUSTOM_API_KEY?: string
   CUSTOM_API_BASE_URL?: string
   CUSTOM_MODEL?: string
-
-  // Embedding model (always uses OpenAI for now)
-  EMBEDDING_MODEL?: string
 
   // Generation params
   MAX_TOKENS?: string
