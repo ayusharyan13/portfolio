@@ -46,6 +46,52 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /*--------------------------------------------------------------
+# Animations
+--------------------------------------------------------------*/
+@keyframes pulse-badge {
+  0% { box-shadow: 0 0 0 0 rgba(18, 214, 64, 0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(18, 214, 64, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 214, 64, 0); }
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.count-box:hover {
+  transform: translateY(-5px);
+  border-color: rgba(18, 214, 64, 0.4) !important;
+  box-shadow: 0 8px 25px rgba(18, 214, 64, 0.1);
+}
+
+.interests .icon-box {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.services .icon-box {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.services .icon-box:hover {
+  border-color: rgba(18, 214, 64, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(18, 214, 64, 0.08);
+}
+
+.portfolio .portfolio-wrap {
+  border-radius: 12px;
+}
+
+/* Stats counter styling */
+.counts .count-box span[data-toggle="counter-up"] {
+  -webkit-animation: none;
+  animation: none;
+}
+
+/*--------------------------------------------------------------
 # Header
 --------------------------------------------------------------*/
 #header {

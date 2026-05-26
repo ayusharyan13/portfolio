@@ -1,0 +1,18 @@
+name = "portfolio-chatbot"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Environment variables (non-secret config)
+[vars]
+LLM_PROVIDER = "groq"
+GROQ_MODEL = "llama-3.1-8b-instant"
+OPENAI_MODEL = "gpt-4o-mini"
+GEMINI_MODEL = "gemini-1.5-flash"
+EMBEDDING_MODEL = "text-embedding-3-small"
+MAX_TOKENS = "512"
+TEMPERATURE = "0.7"
+
+# API keys — set these via `npx wrangler secret put`
+# npx wrangler secret put GROQ_API_KEY
+# npx wrangler secret put OPENAI_API_KEY (still needed for embeddings)
+# npx wrangler secret put GEMINI_API_KEY
